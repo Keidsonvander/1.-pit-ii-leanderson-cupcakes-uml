@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cupcake Gourmet — Leanderson</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fffaf7;color:#2c1e1a}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 7%;background:#fff;border-bottom:1px solid #eadfd8;position:sticky;top:0}
+.marca{font-size:1.35rem;font-weight:700}.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer;background:#7b3f2e;color:#fff}
+.hero,.secao{max-width:1100px;margin:auto}.hero{margin-top:28px;padding:46px;border-radius:24px;background:linear-gradient(135deg,#f5dfd5,#fff4ec)}
+.hero h1{font-size:clamp(2rem,5vw,3.6rem);margin:10px 0}.tag{text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:700;color:#985c48}
+.secao{padding:42px 22px}.grade{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.card{background:#fff;border:1px solid #eadfd8;border-radius:18px;padding:20px}
+.ico{font-size:3rem}.linha,.item{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.painel{display:grid;grid-template-columns:1fr 1.2fr;gap:34px;background:#fff;border:1px solid #eadfd8;border-radius:24px;margin-bottom:40px}
+.painel form{display:grid;gap:14px}.painel label{font-weight:700;display:grid;gap:6px}.painel input,.painel textarea,.painel select{padding:11px;border:1px solid #d8c7bf;border-radius:10px;font:inherit}
+.resumo{background:#fff7f2;border:1px solid #edd7cb;border-radius:12px;padding:14px}.msg{font-weight:700;min-height:24px}.status{margin-top:8px;padding:12px;border-radius:10px;background:#f4e6df}
+@media(max-width:900px){.grade{grid-template-columns:repeat(2,1fr)}.painel{grid-template-columns:1fr}}
+@media(max-width:600px){.grade{grid-template-columns:1fr}.hero{margin:18px;padding:28px 20px}.secao{padding:30px 18px}}
+</style>
+</head>
+<body>
+<header>
+<div><div class="marca">Cupcake Gourmet</div><small>Leanderson Renan Porto Melo • RGM 33208751</small></div>
+<button class="btn" onclick="document.getElementById('pedido').scrollIntoView({behavior:'smooth'})">Carrinho (<span id="qtd">0</span>)</button>
+</header>
+<main>
+<section class="hero"><span class="tag">PIT II • Engenharia de Software</span><h1>Da modelagem UML à solução funcional.</h1><p>Demonstração acadêmica de catálogo, carrinho, dados do cliente, pagamento, entrega e confirmação do pedido.</p></section>
+<section class="secao"><span class="tag">Catálogo</span><h2>Sabores disponíveis</h2><div id="grade" class="grade"></div></section>
+<section id="pedido" class="secao painel">
+<div><span class="tag">Finalização</span><h2>Dados do pedido</h2><p>Informe os dados, escolha pagamento e entrega.</p></div>
+<form id="form">
+<label>Nome<input id="nome" required></label>
+<label>Telefone<input id="tel" required></label>
+<label>Endereço<textarea id="end" required></textarea></label>
+<label>Pagamento<select id="pag" required><option value="">Selecione</option><option>Pix</option><option>Cartão na entrega</option><option>Dinheiro</option></select></label>
+<label>Entrega<select id="entrega" required><option value="">Selecione</option><option>Entrega no endereço</option><option>Retirada na loja</option></select></label>
+<div id="resumo" class="resumo">Adicione produtos ao carrinho.</div>
+<button class="btn" type="submit">Finalizar pedido</button>
+<p id="msg" class="msg"></p><div id="status"></div>
+</form>
+</section>
+</main>
+<script>
+const produtos=[
+{id:1,n:'Cupcake de Chocolate',d:'Massa de chocolate com cobertura cremosa.',p:8.5},
+{id:2,n:'Cupcake de Morango',d:'Baunilha, creme e morango.',p:9},
+{id:3,n:'Cupcake de Baunilha',d:'Massa leve com cobertura artesanal.',p:8},
+{id:4,n:'Cupcake Red Velvet',d:'Red velvet com cream cheese.',p:10}
+],c=new Map(),grade=document.getElementById('grade'),qtd=document.getElementById('qtd'),resumo=document.getElementById('resumo'),msg=document.getElementById('msg'),status=document.getElementById('status');
+function render(){grade.innerHTML=produtos.map(x=>`<article class='card'><div class='ico'>🧁</div><h3>${x.n}</h3><p>${x.d}</p><div class='linha'><strong>R$ ${x.p.toFixed(2).replace('.',',')}</strong><button class='btn' onclick='add(${x.id})'>Adicionar</button></div></article>`).join('')}
+function add(id){const p=produtos.find(x=>x.id===id),a=c.get(id)||{...p,q:0};a.q++;c.set(id,a);atualiza();msg.textContent=`${p.n} adicionado ao carrinho.`}
+function atualiza(){let t=0,qt=0,l=[];c.forEach(x=>{qt+=x.q;t+=x.p*x.q;l.push(`<div class='item'><span>${x.n} x${x.q}</span><strong>R$ ${(x.p*x.q).toFixed(2).replace('.',',')}</strong></div>`)});qtd.textContent=qt;resumo.innerHTML=c.size?`${l.join('')}<hr><div class='item'><strong>Total</strong><strong>R$ ${t.toFixed(2).replace('.',',')}</strong></div>`:'Adicione produtos ao carrinho.'}
+document.getElementById('form').onsubmit=e=>{e.preventDefault();if(!c.size){msg.textContent='Adicione pelo menos um cupcake ao carrinho.';return}const n=Math.floor(1000+Math.random()*9000);msg.textContent=`Pedido #${n} registrado com sucesso.`;status.innerHTML=`<div class='status'><strong>Status:</strong> Pedido recebido • ${pag.value} • ${entrega.value}</div>`;c.clear();atualiza();e.target.reset()}
+render();atualiza();
+</script>
+</body>
+</html>
