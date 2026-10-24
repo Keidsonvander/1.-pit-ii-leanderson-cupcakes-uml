@@ -14,9 +14,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:18p
 .ico{font-size:3rem}.linha,.item{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .painel{display:grid;grid-template-columns:1fr 1.2fr;gap:34px;background:#fff;border:1px solid #eadfd8;border-radius:24px;margin-bottom:40px}
 .painel form{display:grid;gap:14px}.painel label{font-weight:700;display:grid;gap:6px}.painel input,.painel textarea,.painel select{padding:11px;border:1px solid #d8c7bf;border-radius:10px;font:inherit}
-.resumo{background:#fff7f2;border:1px solid #edd7cb;border-radius:12px;padding:14px}.msg{font-weight:700;min-height:24px}.status{margin-top:8px;padding:12px;border-radius:10px;background:#f4e6df}
+.resumo{background:#fff7f2;border:1px solid #edd7cb;border-radius:12px;padding:14px}.msg{font-weight:700;min-height:24px;padding:10px;border-radius:10px}.msg:empty{padding:0}.msg.ok{background:#eef8f0;color:#245c2f}.msg.erro{background:#fff0ed;color:#8a2d1f}.status{margin-top:8px;padding:12px;border-radius:10px;background:#f4e6df}.etapas{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.etapa{padding:7px 10px;border-radius:999px;background:#eee}.etapa.ativa{background:#7b3f2e;color:#fff}
 @media(max-width:900px){.grade{grid-template-columns:repeat(2,1fr)}.painel{grid-template-columns:1fr}}
-@media(max-width:600px){.grade{grid-template-columns:1fr}.hero{margin:18px;padding:28px 20px}.secao{padding:30px 18px}}
+@media(max-width:600px){header{align-items:flex-start;gap:12px;flex-direction:column}.btn{width:100%}.grade{grid-template-columns:1fr}.hero{margin:18px;padding:28px 20px}.secao{padding:30px 18px}.painel{gap:20px}.painel form{gap:18px}.painel input,.painel textarea,.painel select{padding:13px}}
 </style>
 </head>
 <body>
@@ -49,9 +49,9 @@ const produtos=[
 {id:4,n:'Cupcake Red Velvet',d:'Red velvet com cream cheese.',p:10}
 ],c=new Map(),grade=document.getElementById('grade'),qtd=document.getElementById('qtd'),resumo=document.getElementById('resumo'),msg=document.getElementById('msg'),status=document.getElementById('status');
 function render(){grade.innerHTML=produtos.map(x=>`<article class='card'><div class='ico'>🧁</div><h3>${x.n}</h3><p>${x.d}</p><div class='linha'><strong>R$ ${x.p.toFixed(2).replace('.',',')}</strong><button class='btn' onclick='add(${x.id})'>Adicionar</button></div></article>`).join('')}
-function add(id){const p=produtos.find(x=>x.id===id),a=c.get(id)||{...p,q:0};a.q++;c.set(id,a);atualiza();msg.textContent=`${p.n} adicionado ao carrinho.`}
+function mensagem(texto,tipo='ok'){msg.className=`msg ${tipo}`;msg.textContent=texto}function add(id){const p=produtos.find(x=>x.id===id),a=c.get(id)||{...p,q:0};a.q++;c.set(id,a);atualiza();mensagem(`${p.n} foi adicionado ao carrinho com sucesso.`,'ok')}
 function atualiza(){let t=0,qt=0,l=[];c.forEach(x=>{qt+=x.q;t+=x.p*x.q;l.push(`<div class='item'><span>${x.n} x${x.q}</span><strong>R$ ${(x.p*x.q).toFixed(2).replace('.',',')}</strong></div>`)});qtd.textContent=qt;resumo.innerHTML=c.size?`${l.join('')}<hr><div class='item'><strong>Total</strong><strong>R$ ${t.toFixed(2).replace('.',',')}</strong></div>`:'Adicione produtos ao carrinho.'}
-document.getElementById('form').onsubmit=e=>{e.preventDefault();if(!c.size){msg.textContent='Adicione pelo menos um cupcake ao carrinho.';return}const n=Math.floor(1000+Math.random()*9000);msg.textContent=`Pedido #${n} registrado com sucesso.`;status.innerHTML=`<div class='status'><strong>Status:</strong> Pedido recebido • ${pag.value} • ${entrega.value}</div>`;c.clear();atualiza();e.target.reset()}
+document.getElementById('form').onsubmit=e=>{e.preventDefault();const faltando=[];if(!nome.value.trim())faltando.push('nome');if(!tel.value.trim())faltando.push('telefone');if(!end.value.trim())faltando.push('endereço');if(!pag.value)faltando.push('pagamento');if(!entrega.value)faltando.push('entrega');if(!c.size){mensagem('Adicione pelo menos um cupcake ao carrinho antes de finalizar.','erro');return}if(faltando.length){mensagem(`Preencha os campos obrigatórios: ${faltando.join(', ')}.`,'erro');return}const n=Math.floor(1000+Math.random()*9000);mensagem(`Pedido #${n} concluído com sucesso.`,'ok');status.innerHTML=`<div class='status'><strong>Status do pedido #${n}:</strong> ${pag.value} • ${entrega.value}<div class='etapas'><span class='etapa ativa'>Pedido recebido</span><span class='etapa'>Em preparo</span><span class='etapa'>Saiu para entrega</span><span class='etapa'>Entregue</span></div></div>`;c.clear();atualiza();e.target.reset()}
 render();atualiza();
 </script>
 </body>
